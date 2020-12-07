@@ -1,0 +1,136 @@
+﻿@model ASP.NET_Developer_Challenge_test.Models.MainVM
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+<div class="wrapper fadeInDown">
+    <div id="formContent">
+        <!-- Tabs Titles -->
+        <!-- Icon -->
+        <div class="fadeIn first">
+            <img height="100" src="https://static.highsnobiety.com/thumbor/Dlh0IXpfsroEYkPeg4h9FT0Sjyc=/1600x1067/static.highsnobiety.com/wp-content/uploads/2012/08/06171644/replacement-logos-01.jpg" id="icon" alt="User Icon" />
+        </div>
+        <!-- Login Form -->
+        <div>
+            <input type="text" id="Name" class="fadeIn second" name="Name" placeholder="الإسم">
+            <input type="text" id="Mobile" class="fadeIn third" name="Mobile" placeholder="الجوال">
+            <input type="text" id="Email" class="fadeIn third" name="Email" placeholder="البريد الالكتروني">
+            <br />
+            <button onclick="showModal()" class="btn btn-success fadeIn fourth">إرسال</button>
+        </div>
+        <br />
+        <!-- Remind Passowrd -->
+        <div id="formFooter">
+            <a class="underlineHover" href="#"></a>
+        </div>
+
+    </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">اختيار خدمة</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @foreach (var service in Model.Services)
+                {
+                    <button onclick="selectService(this)" class="btn btn-default">@service.Name</button>
+                }
+            </div>
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>*@
+                <button type="button" onclick="showPlanModal()" class="btn btn-primary">التالي</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="planModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">إختيار الخطة</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @foreach (var Interrest in Model.Interrests)
+                {
+                    <button onclick="selectPlan(this)" class="btn btn-default">@Interrest.Name</button>
+                }
+            </div>
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>*@
+                @*<button type="button" onclick="Submit()" class="btn btn-primary">إرسال</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var servicelist = [];
+    var plan = "";
+    function showModal() {
+        servicelist = [];
+        if ($("#Email").val() !== "" && $("#Mobile").val() !== "" && $("#Name").val() !== "") {
+            $("#exampleModal").modal();
+        } else {
+            alert("الرجاء ملء جميع الحقول");
+        }
+    }
+    function selectService(elem) {
+        if ($(elem).hasClass("btn-default") === true) {
+            $(elem).removeClass("btn-default");
+            $(elem).addClass("btn-success");
+            servicelist.push($(elem).html());
+            //alert(servicelist);
+        } else {
+            $(elem).removeClass("btn-success");
+            $(elem).addClass("btn-default");
+        }
+    }
+    function showPlanModal() {
+        if (servicelist.length <= 0) {
+            alert("الرجاء اختيار خدمة");
+            return;
+        }
+        $("#planModal").modal();
+    }
+    function selectPlan(elem) {
+        plan = $(elem).html();
+        Submit();
+    }
+    function Submit() {
+        //alert(servicelist);
+        $.ajax({
+            url: "/Home/SendData",
+            type: 'POST',
+            data: { name: $("#Name").val(), phone: $("#Mobile").val(), email: $("#Email").val(), services: servicelist, plan: plan },
+            success: function (data) {
+                //alert(data);
+                alert("تم التسجيل بنجاح");
+                $("#planModal").modal('hide');
+                $("#exampleModal").modal('hide');
+                $("#Email").val("");
+                $("#Mobile").val("");
+                $("#Name").val("");
+            }
+        });
+    }
+</script>
